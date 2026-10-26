@@ -16,8 +16,8 @@
 **LibraryHub** is an enterprise-grade library management platform built from the ground up for modern educational institutions, universities, and public libraries. It completely eliminates manual registers and lost books by digitizing catalog search, transactional borrowing, waitlist reservations, automated fine calculations, and circulation reporting.
 
 - **GitHub Repository**: [https://github.com/hasanshahir/libraryhub](https://github.com/hasanshahir/libraryhub)
-- **Live Demo Deployment**: [https://libraryhub-hasanshahir.vercel.app](https://libraryhub-hasanshahir.vercel.app) *(or your deployed Vercel domain)*
-- **Interactive Swagger API Docs**: Available at `/api/docs`
+- **Live Demo Deployment**: [https://libraryhub-blond.vercel.app](https://libraryhub-blond.vercel.app)
+- **Interactive Swagger API Docs**: Available at [https://libraryhub-blond.vercel.app/api/docs](https://libraryhub-blond.vercel.app/api/docs)
 
 ---
 
