@@ -1,0 +1,92 @@
+Task Title
+Full Stack Development - Week 2: LibraryHub - Library Management System
+
+Status
+In Progress
+Assigned To
+Hasan Shahir
+
+Created By
+Qamar Naveed
+
+Due Date
+27 October 2026
+
+Timeline
+Created: 20 October 2026
+
+Task Description
+Objective
+The objective of Week 2 (configured for a 8 weeks path) is to build a complete library management system with TypeScript, PostgreSQL and Prisma ORM, including roles, borrowing workflows, fines and reports.
+
+Project Brief
+Real-world problem: School and university libraries still track books and borrowers on registers, losing books and fines. LibraryHub digitises the catalogue, borrowing, returns and late fees.
+
+Tech stack: TypeScript, Node.js + Express, PostgreSQL + Prisma ORM, React + TanStack Query, Tailwind CSS
+
+This is a brand-new, standalone project. Create a new GitHub repository for it and deploy it live by the end of the week.
+
+Learning Phase
+1. Main Topics
+TypeScript on the backend
+Prisma ORM & migrations
+Authentication & roles
+Relational data modelling
+Database transactions
+2. Detailed Concepts
+Prisma schema, relations (1-n, n-n) & migrations
+Seeding with Prisma
+JWT auth with httpOnly cookies + bcrypt
+Role-based middleware (Librarian / Member)
+prisma.$transaction for borrow/return
+Fine calculation for late returns
+Pagination & full-text search
+Zod validation shared between client and server
+TanStack Query for data fetching
+Practical Implementation
+Project Task: LibraryHub — Library Management System
+
+Must-Have Features
+
+Librarians add books (title, author, ISBN, category, copies) and manage members.
+Members search the catalogue by title/author/category and see availability.
+Borrow and return flow with due dates; available copies update automatically.
+Late returns generate fines; members see their history and pending fines.
+Book reservation queue when all copies are borrowed.
+Dashboard: most borrowed books, overdue list, total fines collected.
+Bonus Features (for extra credit)
+
+Barcode / ISBN lookup with Open Library API
+Email reminders before due date
+Acceptance Criteria (Definition of Done)
+
+Borrowing is a transaction — copies can never go below zero.
+Members cannot access librarian routes (403).
+Prisma migrations committed; npm run seed creates realistic data.
+Same Zod schemas validate on frontend and backend.
+Deployed live with demo librarian and member accounts.
+Day-by-Day Plan
+Day 1: TypeScript basics for Node; set up Express + TS + Prisma; design schema and run migrations; seed data.
+Day 2: Auth (register/login/logout) with JWT cookies; roles middleware; shared Zod schemas.
+Day 3: Books & members APIs with search, filters and pagination.
+Day 4: Borrow / return / reserve with prisma.$transaction; fines calculation.
+Day 5: React + TanStack Query: catalogue, member area, librarian dashboard and reports.
+Day 6: Testing edge cases, deploy, README with ERD, demo video.
+Deliverables
+Live Demo URL & Public GitHub Repository URL for this project (MANDATORY / MUST)
+README with project overview, features, tech stack, screenshots (desktop + mobile), setup steps and demo login credentials for each role.
+Database ERD and API documentation (Swagger / Postman / GraphQL schema).
+Short demo video (2–3 min, Loom / YouTube) showing all main features.
+Learning Resources
+TypeScript Handbook
+Prisma ORM Docs
+Prisma Transactions
+TanStack Query
+Zod Docs
+Resume Bullet Point
+"Developed a library management system in TypeScript (Express, PostgreSQL, Prisma, React) with role-based access, transactional borrowing, automated fines and reporting."
+
+Learning Outcomes
+Interns master TypeScript, Prisma and relational data design — the backbone of modern full-stack apps.
+
+Close Window

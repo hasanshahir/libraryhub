@@ -1,0 +1,31 @@
+{
+  "name": "libraryhub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LibraryHub — Next-Generation Library Management System built with TypeScript, Node.js + Express, PostgreSQL + Prisma ORM, React + TanStack Query, and Tailwind CSS",
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
+    "build:server": "npm run build --prefix server",
+    "build": "npm run build:client && npm run build:server",
+    "start": "node server/dist/index.js",
+    "seed": "npm run seed --prefix server",
+    "prisma:generate": "npm run prisma:generate --prefix server",
+    "prisma:migrate": "npm run prisma:deploy --prefix server"
+  },
+  "keywords": [
+    "typescript",
+    "express",
+    "prisma",
+    "postgresql",
+    "react",
+    "tanstack-query",
+    "tailwind-css",
+    "library-management",
+    "rbac",
+    "transactions"
+  ],
+  "author": "Hasan Shahir",
+  "license": "MIT"
+}

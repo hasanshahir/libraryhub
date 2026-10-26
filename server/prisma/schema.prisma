@@ -1,0 +1,156 @@
+// Prisma Schema for LibraryHub - Library Management System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  LIBRARIAN
+  MEMBER
+}
+
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+}
+
+enum ReservationStatus {
+  PENDING
+  NOTIFIED
+  FULFILLED
+  CANCELLED
+}
+
+enum FineStatus {
+  UNPAID
+  PAID
+  WAIVED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  name         String
+  role         Role          @default(MEMBER)
+  membershipId String        @unique
+  phone        String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  borrowRecords BorrowRecord[]
+  reservations  Reservation[]
+  fines         Fine[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Book {
+  id              String        @id @default(cuid())
+  isbn            String        @unique
+  title           String
+  author          String
+  category        String
+  description     String?       @db.Text
+  coverUrl        String?
+  publishYear     Int?
+  publisher       String?
+  totalCopies     Int           @default(1)
+  availableCopies Int           @default(1)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  borrowRecords   BorrowRecord[]
+  reservations    Reservation[]
+
+  @@index([title])
+  @@index([author])
+  @@index([category])
+  @@map("books")
+}
+
+model BorrowRecord {
+  id          String        @id @default(cuid())
+  bookId      String
+  userId      String
+  borrowDate  DateTime      @default(now())
+  dueDate     DateTime
+  returnDate  DateTime?
+  status      BorrowStatus  @default(BORROWED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  book        Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fines       Fine[]
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([status])
+  @@map("borrow_records")
+}
+
+model Reservation {
+  id            String            @id @default(cuid())
+  bookId        String
+  userId        String
+  reservedAt    DateTime          @default(now())
+  status        ReservationStatus @default(PENDING)
+  queuePosition Int               @default(1)
+  fulfilledAt   DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  book          Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+  @@index([userId])
+  @@index([status])
+  @@map("reservations")
+}
+
+model Fine {
+  id               String       @id @default(cuid())
+  borrowRecordId   String
+  userId           String
+  amount           Decimal      @db.Decimal(10, 2)
+  daysOverdue      Int
+  status           FineStatus   @default(UNPAID)
+  paidAt           DateTime?
+  paymentReference String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  borrowRecord     BorrowRecord @relation(fields: [borrowRecordId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([borrowRecordId])
+  @@index([status])
+  @@map("fines")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String   @db.Text
+  type      String   // DUE_REMINDER, OVERDUE_ALERT, BOOK_AVAILABLE, FINE_ISSUED, GENERAL
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
