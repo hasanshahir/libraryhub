@@ -8,11 +8,22 @@ export const api = axios.create({
   },
 });
 
+// Request interceptor to attach bearer token fallback if present
+api.interceptors.request.use(
+  (config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('libraryhub_token') : null;
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Response interceptor for token expiration or unauthorized redirects
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If 401 on an authenticated endpoint other than login/me, handle gracefully
     return Promise.reject(error);
   }
 );
@@ -57,6 +68,9 @@ export interface BorrowRecord {
   book: Book;
   user?: User;
   fines?: Fine[];
+  accruedFine?: number;
+  isOverdue?: boolean;
+  daysOverdue?: number;
 }
 
 export interface Fine {

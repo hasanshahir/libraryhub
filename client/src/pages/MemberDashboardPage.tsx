@@ -182,7 +182,7 @@ export const MemberDashboardPage: React.FC<MemberDashboardPageProps> = ({
                         {isOverdue ? (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" />
-                            Overdue ({daysDiff} days late)
+                            Overdue ({loan.daysOverdue || daysDiff}d late{loan.accruedFine ? ` • $${Number(loan.accruedFine).toFixed(2)} fine` : ''})
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">

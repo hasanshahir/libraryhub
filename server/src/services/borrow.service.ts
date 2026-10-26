@@ -51,9 +51,12 @@ export class BorrowService {
         throw new Error(`Borrowing blocked: You have $${totalUnpaid.toFixed(2)} in outstanding library fines. Please settle your fines first.`);
       }
 
-      // 5. Atomic decrement of available copies
-      const updatedBook = await tx.book.update({
-        where: { id: bookId },
+      // 5. Strict atomic decrement with database-level conditional guard
+      const updateResult = await tx.book.updateMany({
+        where: {
+          id: bookId,
+          availableCopies: { gt: 0 },
+        },
         data: {
           availableCopies: {
             decrement: 1,
@@ -61,10 +64,13 @@ export class BorrowService {
         },
       });
 
-      // Defensive invariant check
-      if (updatedBook.availableCopies < 0) {
-        throw new Error('Transaction aborted: Available book copies cannot drop below zero');
+      if (updateResult.count === 0) {
+        throw new Error('No copies available to borrow. Please reserve this book to join the waitlist queue.');
       }
+
+      const updatedBook = await tx.book.findUniqueOrThrow({
+        where: { id: bookId },
+      });
 
       // 6. Check and fulfill any pending reservation the member had for this book
       const pendingReservation = await tx.reservation.findFirst({

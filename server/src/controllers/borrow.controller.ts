@@ -5,6 +5,34 @@ import { FineService } from '../services/fine.service';
 import prisma from '../utils/prisma';
 import { BorrowStatus, Role } from '@prisma/client';
 
+const DAILY_FINE_RATE = parseFloat(process.env.DAILY_FINE_RATE || '1.50');
+
+export const attachAccruedFine = <T extends { dueDate: Date; status: string; fines?: any[] }>(record: T) => {
+  const now = new Date();
+  const due = new Date(record.dueDate);
+  const isLate = record.status !== BorrowStatus.RETURNED && now > due;
+  
+  if (isLate) {
+    const diffMs = now.getTime() - due.getTime();
+    const daysOverdue = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const dynamicFine = parseFloat((daysOverdue * DAILY_FINE_RATE).toFixed(2));
+    return {
+      ...record,
+      isOverdue: true,
+      daysOverdue,
+      accruedFine: dynamicFine,
+    };
+  }
+
+  const existingUnpaid = record.fines?.find((f) => f.status === 'UNPAID');
+  return {
+    ...record,
+    isOverdue: false,
+    daysOverdue: existingUnpaid ? existingUnpaid.daysOverdue : 0,
+    accruedFine: existingUnpaid ? Number(existingUnpaid.amount) : 0,
+  };
+};
+
 export class BorrowController {
   /**
    * Borrow a book (Member checks out or Librarian checks out for member)
@@ -81,7 +109,7 @@ export class BorrowController {
   }
 
   /**
-   * Current user's borrowing history
+   * Current user's borrowing history with dynamically calculated accrued fines
    */
   static async getMyBorrowHistory(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
@@ -102,9 +130,11 @@ export class BorrowController {
         orderBy: { borrowDate: 'desc' },
       });
 
+      const enrichedRecords = records.map(attachAccruedFine);
+
       res.json({
         success: true,
-        data: records,
+        data: enrichedRecords,
       });
     } catch (error) {
       console.error('getMyBorrowHistory error:', error);
@@ -146,10 +176,12 @@ export class BorrowController {
         }),
       ]);
 
+      const enrichedRecords = records.map(attachAccruedFine);
+
       res.json({
         success: true,
         data: {
-          records,
+          records: enrichedRecords,
           pagination: {
             totalRecords,
             totalPages: Math.ceil(totalRecords / take),
@@ -165,7 +197,7 @@ export class BorrowController {
   }
 
   /**
-   * Overdue list
+   * Overdue list with dynamic accrued fine
    */
   static async getOverdueList(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
@@ -191,9 +223,11 @@ export class BorrowController {
         orderBy: { dueDate: 'asc' },
       });
 
+      const enrichedOverdue = overdueRecords.map(attachAccruedFine);
+
       res.json({
         success: true,
-        data: overdueRecords,
+        data: enrichedOverdue,
       });
     } catch (error) {
       console.error('getOverdueList error:', error);

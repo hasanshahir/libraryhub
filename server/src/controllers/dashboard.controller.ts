@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import prisma from '../utils/prisma';
 import { FineService } from '../services/fine.service';
+import { attachAccruedFine } from './borrow.controller';
 import { BorrowStatus, FineStatus, Role } from '@prisma/client';
 
 export class DashboardController {
@@ -115,7 +116,7 @@ export class DashboardController {
             finesPending: Number(finesPendingResult._sum.amount || 0),
           },
           mostBorrowedBooks,
-          overdueRecords,
+          overdueRecords: overdueRecords.map(attachAccruedFine),
           recentLoans,
         },
       });
@@ -141,7 +142,7 @@ export class DashboardController {
         await Promise.all([
           prisma.borrowRecord.findMany({
             where: { userId: req.user.userId, status: BorrowStatus.BORROWED },
-            include: { book: true },
+            include: { book: true, fines: true },
             orderBy: { dueDate: 'asc' },
           }),
           prisma.borrowRecord.findMany({
@@ -170,8 +171,8 @@ export class DashboardController {
       res.json({
         success: true,
         data: {
-          activeLoans,
-          overdueLoans,
+          activeLoans: activeLoans.map(attachAccruedFine),
+          overdueLoans: overdueLoans.map(attachAccruedFine),
           pendingReservations,
           unpaidFines,
           totalUnpaidFines: parseFloat(totalUnpaidFines.toFixed(2)),
