@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerDocument } from './swagger';
@@ -14,8 +16,6 @@ import fineRoutes from './routes/fine.routes';
 import reservationRoutes from './routes/reservation.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import userRoutes from './routes/user.routes';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,11 +32,10 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl) or allowed origins
       if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive for preview deployments
+        callback(null, true);
       }
     },
     credentials: true,
@@ -53,8 +52,10 @@ app.get('/api/docs.json', (_req: Request, res: Response) => {
   res.json(swaggerDocument);
 });
 
-// Health check endpoint
-app.get('/api/health', (_req: Request, res: Response) => {
+// Create modular API router that handles all API endpoints
+const apiRouter = express.Router();
+
+apiRouter.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -63,14 +64,17 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
-// Mount API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/borrow', borrowRoutes);
-app.use('/api/fines', fineRoutes);
-app.use('/api/reservations', reservationRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/users', userRoutes);
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/books', bookRoutes);
+apiRouter.use('/borrow', borrowRoutes);
+apiRouter.use('/fines', fineRoutes);
+apiRouter.use('/reservations', reservationRoutes);
+apiRouter.use('/dashboard', dashboardRoutes);
+apiRouter.use('/users', userRoutes);
+
+// Mount router on both '/api' and '/' to ensure 100% compatibility with Vercel rewrites
+app.use('/api', apiRouter);
+app.use(apiRouter);
 
 // Serve client static build in production if available
 const clientDistPath = path.resolve(__dirname, '../../client/dist');
@@ -81,7 +85,6 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
     res.status(404).json({ success: false, message: 'API endpoint not found' });
     return;
   }
-  // Try sending React index.html if built
   res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
     if (err) {
       next();
@@ -98,7 +101,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`🚀 LibraryHub API server running on http://localhost:${PORT}`);
     console.log(`📚 Interactive Swagger API Docs available at http://localhost:${PORT}/api/docs`);

@@ -4,28 +4,37 @@
   "private": true,
   "description": "LibraryHub — Next-Generation Library Management System built with TypeScript, Node.js + Express, PostgreSQL + Prisma ORM, React + TanStack Query, and Tailwind CSS",
   "scripts": {
-    "dev:server": "npm run dev --prefix server",
-    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build:client",
     "build:client": "npm run build --prefix client",
     "build:server": "npm run build --prefix server",
-    "build": "npm run build:client && npm run build:server",
+    "postinstall": "prisma generate --schema=server/prisma/schema.prisma",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
     "start": "node server/dist/index.js",
-    "seed": "npm run seed --prefix server",
-    "prisma:generate": "npm run prisma:generate --prefix server",
-    "prisma:migrate": "npm run prisma:deploy --prefix server"
+    "seed": "npm run seed --prefix server"
   },
-  "keywords": [
-    "typescript",
-    "express",
-    "prisma",
-    "postgresql",
-    "react",
-    "tanstack-query",
-    "tailwind-css",
-    "library-management",
-    "rbac",
-    "transactions"
-  ],
-  "author": "Hasan Shahir",
-  "license": "MIT"
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.2",
+    "@types/swagger-ui-express": "^4.1.7",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
 }

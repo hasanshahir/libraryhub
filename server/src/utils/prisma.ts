@@ -5,10 +5,19 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  'postgresql://neondb_owner:npg_V9kMs8BHaDtU@ep-red-base-b5e8dtw2.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require';
+
 export const prisma =
   global.prisma ||
   new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+    datasources: {
+      db: {
+        url: databaseUrl,
+      },
+    },
+    log: ['error', 'warn'],
   });
 
 if (process.env.NODE_ENV !== 'production') {
